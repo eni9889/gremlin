@@ -5,10 +5,10 @@
 
 #define NSDataReadingMappedAlways (1UL << 3)
 
-@class PLAssetsSaver;
-@interface PLAssetsSaver
+@interface PLAssetsSaver : NSObject
 + (id)sharedAssetsSaver;
-- (void)queueJobData:(id)d completionBlock:(void (^)(id,id))block;
+- (void)queueJobData:(id)d completionBlock:(void (^)(id,id))block;        // iOS 5
+- (void)queueJobDictionary:(id)d completionBlock:(void (^)(id,id))block;  // iOS 6
 @end
 
 @interface GRPhotoImporter : NSObject <GRImporter>
@@ -54,25 +54,40 @@
                 utt,       @"Type",
                 nil];
 
-            NSData* jobData = [NSKeyedArchiver archivedDataWithRootObject:job];
-            [job release];
-            
             NSConditionLock* cond;
             cond = [[NSConditionLock alloc] initWithCondition:0];
             
+            PLAssetsSaver * assetSaver = [PLAssetsSaver sharedAssetsSaver];
+            NSData* jobData = nil;
             __block BOOL success = NO;
-            [[PLAssetsSaver sharedAssetsSaver] queueJobData:jobData
-                                            completionBlock:^(id x1, id x2) 
-            {
-                // detect success/failure here somehow
-                success = YES;
-                [cond lock];
-                [cond unlockWithCondition:1];
-            }];
+
+            if ([assetSaver respondsToSelector:@selector(queueJobDictionary:completionBlock:)]){
+                // iOS 6
+                [[PLAssetsSaver sharedAssetsSaver] queueJobDictionary:job
+                                                completionBlock:^(id x1, id x2) 
+                {
+                    // detect success/failure here somehow
+                    success = YES;
+                    [cond lock];
+                    [cond unlockWithCondition:1];
+                }];
+            } else {
+                // iOS 5
+                jobData = [NSKeyedArchiver archivedDataWithRootObject:job];
+                [[PLAssetsSaver sharedAssetsSaver] queueJobData:jobData
+                                                completionBlock:^(id x1, id x2) {
+                    // detect success/failure here somehow
+                    success = YES;
+                    [cond lock];
+                    [cond unlockWithCondition:1];
+                }];
+            }
 
             [cond lockWhenCondition:1];
             [cond unlock];
             [cond release];
+
+            [job release];
 
             return success;
         }
