@@ -42,14 +42,25 @@
         uinf = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES]
                                            forKey:@"GRDocumentImport"];
         
-        LSOpenOperation* op;
         Class LSOpenOperation_ = objc_getClass("LSOpenOperation"); 
-        op = [[LSOpenOperation_ alloc] initForOpeningResource:url
-                                             usingApplication:appIdentifier
-                                     uniqueDocumentIdentifier:nil
-                                                     userInfo:uinf
-                                                     delegate:nil];
-       
+        LSOpenOperation * op = [LSOpenOperation_ alloc];
+        if ([op respondsToSelector:@selector(initForOpeningResource:usingApplication:uniqueDocumentIdentifier:userInfo:options:delegate:)]){
+            // iOS 6
+            [op initForOpeningResource:url
+                      usingApplication:appIdentifier
+              uniqueDocumentIdentifier:nil
+                              userInfo:uinf
+                               options:nil
+                              delegate:nil];
+       } else {
+            // iOS 5
+            [op initForOpeningResource:url
+                      usingApplication:appIdentifier
+              uniqueDocumentIdentifier:nil
+                              userInfo:uinf
+                              delegate:nil];
+       }
+
         NSConditionLock* cond = [[NSConditionLock alloc] initWithCondition:0];
 
         __block BOOL success = NO;

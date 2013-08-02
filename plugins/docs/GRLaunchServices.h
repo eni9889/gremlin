@@ -20,6 +20,14 @@
 @interface LSOpenOperation : NSObject
 - (void)start;
 - (void)setCompletionBlock:(void (^)(void))block;
+// iOS 6
+- (id)initForOpeningResource:(NSURL*)url
+            usingApplication:(NSString*)appIdent
+    uniqueDocumentIdentifier:(NSString*)docIdent
+                    userInfo:(NSDictionary*)userInfo
+                    options:(NSDictionary*)options
+                    delegate:(id)delegate;
+// iOS 5 and before
 - (id)initForOpeningResource:(NSURL*)url
             usingApplication:(NSString*)appIdent
     uniqueDocumentIdentifier:(NSString*)docIdent
