@@ -10,6 +10,6 @@ export ARCHS = armv7
 
 include $(THEOS)/makefiles/common.mk
 
-SUBPROJECTS = contacts photos videos itunes
+SUBPROJECTS = contacts photos videos itunes docs
 
 include $(THEOS_MAKE_PATH)/aggregate.mk
