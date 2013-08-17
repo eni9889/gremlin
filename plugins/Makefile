@@ -1,5 +1,5 @@
-export TARGET = iphone:clang:latest:5.0
-export ARCHS = armv7
+export TARGET = iphone:clang:latest:4.2
+export ARCHS = armv6
 
 # Support scan-build, which interposes CC/CXX variables
 #CXX ?= xcrun -sdk iphoneos clang++
